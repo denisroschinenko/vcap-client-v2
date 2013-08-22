@@ -25,7 +25,7 @@ namespace IronFoundryConsole
                     DiskQuota = 1024
                 };
 
-            client.PushApplication(application, @"d:\MvcAltorosApplication\MvcAltorosApplication ");
+            //client.PushApplication(application, @"d:\MvcAltorosApplication\MvcAltorosApplication ");
             Console.ReadLine();
         }
     }

@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{57F2AA37-5C5E-4B1B-A66E-CC1B8CD77D48}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>IronFoundry.VcapClient.V2</RootNamespace>
+    <AssemblyName>IronFoundry.VcapClient.V2</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Profile46</TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Models\AccessToken.cs" />
+    <Compile Include="Models\Application.cs" />
+    <Compile Include="Models\Domain.cs" />
+    <Compile Include="Models\Event.cs" />
+    <Compile Include="Models\Info.cs" />
+    <Compile Include="Models\Metadata.cs" />
+    <Compile Include="Models\Organization.cs" />
+    <Compile Include="Models\Resource.cs" />
+    <Compile Include="Models\ResourceFile.cs" />
+    <Compile Include="Models\ResponseData.cs" />
+    <Compile Include="Models\Route.cs" />
+    <Compile Include="Models\Service.cs" />
+    <Compile Include="Models\ServiceBind.cs" />
+    <Compile Include="Models\ServiceInstance.cs" />
+    <Compile Include="Models\ServicePlan.cs" />
+    <Compile Include="Models\Space.cs" />
+    <Compile Include="Models\Stack.cs" />
+    <Compile Include="Models\User.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Vcap\Constants.cs" />
+    <Compile Include="Vcap\EntityProviders\ApplicationProvider.cs" />
+    <Compile Include="Vcap\EntityProviders\BaseProvider.cs" />
+    <Compile Include="Vcap\EntityProviders\DomainProvider.cs" />
+    <Compile Include="Vcap\EntityProviders\EventProvider.cs" />
+    <Compile Include="Vcap\EntityProviders\InfoProvider.cs" />
+    <Compile Include="Vcap\EntityProviders\OrganizationProvider.cs" />
+    <Compile Include="Vcap\EntityProviders\RouteProvider.cs" />
+    <Compile Include="Vcap\EntityProviders\ServiceBindProvider.cs" />
+    <Compile Include="Vcap\EntityProviders\ServiceInstanceProvider.cs" />
+    <Compile Include="Vcap\EntityProviders\ServicePlanProvider.cs" />
+    <Compile Include="Vcap\EntityProviders\ServiceProvider.cs" />
+    <Compile Include="Vcap\EntityProviders\SpaceProvider.cs" />
+    <Compile Include="Vcap\EntityProviders\StackProvider.cs" />
+    <Compile Include="Vcap\EntityProviders\UserProvider.cs" />
+    <Compile Include="Vcap\Interfaces\IStableDataStorage.cs" />
+    <Compile Include="Vcap\Interfaces\IVcapClient.cs" />
+    <Compile Include="Vcap\TokenManager.cs" />
+    <Compile Include="Vcap\VcapClient.cs" />
+    <Compile Include="Vcap\VcapCredentialManager.cs" />
+    <Compile Include="Vcap\VcapRequest.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PortableRest\src\PortableRest\PortableRest.csproj">
+      <Project>{a3546d1a-ce87-49bb-800a-98018c1fca00}</Project>
+      <Name>PortableRest</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.5.0.6\lib\portable-net40+sl4+wp7+win8\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http">
+      <HintPath>..\packages\Microsoft.Net.Http.2.1.10\lib\portable-net40+sl4+win8+wp71\System.Net.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks">
+      <HintPath>..\packages\Microsoft.Bcl.1.0.19\lib\portable-net40+sl4+win8+wp71\System.Threading.Tasks.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -12,20 +12,41 @@ namespace IronFoundryConsole
     {
         static void Main(string[] args)
         {
-            VcapClient client = new VcapClient(new Uri("http://api.192.168.1.77.xip.io"), new StableDataStorage());
-            client.Login("micro@vcap.me", "micr0@micr0");
-            //client.GetApplication("caldecott");
-            var application = new Application()
-                {
-                    Name = "Testtesttest",
-                    SpaceGuid = Guid.Parse("96400672-c897-4545-aadd-79181833ca6a"),
-                    StackGuid = Guid.Parse("2becc7fd-db45-461e-9d94-8dc1243e1bf7"),
-                    NumberInstance = 1,
-                    Memory = 128,
-                    DiskQuota = 1024
-                };
+            Console.WriteLine("Enter CFv2 data:");
+            Console.WriteLine("Url:");
+            var url = Console.ReadLine();
 
-            //client.PushApplication(application, @"d:\MvcAltorosApplication\MvcAltorosApplication ");
+            Console.WriteLine("Login:");
+            var login = Console.ReadLine();
+
+            Console.WriteLine("Password");
+            var password = Console.ReadLine();
+
+            var client = new VcapClient(new Uri(url), new StableDataStorage());
+            client.Login(login ?? "micro@vcap.me", password ?? "micr0@micr0");
+
+            Console.WriteLine("--- Organizations: ---");
+            foreach (var organization in client.GetOrganizations())
+            {
+                Console.WriteLine(organization.Entity.Name);
+            }
+            Console.WriteLine();
+
+            Console.WriteLine("--- Spaces: ---");
+            foreach (var space in client.GetSpaces())
+            {
+                Console.WriteLine(space.Entity.Name);
+            }
+            Console.WriteLine();
+
+            Console.WriteLine("--- Apps: ---");
+            foreach (var app in client.GetApplications())
+            {
+                Console.WriteLine(app.Entity.Name);
+            }
+            Console.WriteLine();
+
+            Console.WriteLine("Everything is OK.");
             Console.ReadLine();
         }
     }

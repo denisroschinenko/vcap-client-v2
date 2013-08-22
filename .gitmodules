@@ -1,0 +1,3 @@
+[submodule "PortableRest"]
+	path = PortableRest
+	url = git@github.com:denisroschinenko/PortableRest.git

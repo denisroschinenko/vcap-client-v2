@@ -25,13 +25,8 @@ namespace IronFoundry.VcapClient.V2
             VcapRequest.AddBodyParameter("username", email);
             VcapRequest.AddBodyParameter("password", password);
 
-            try
-            {
-                var token = VcapRequest.Execute<AccessToken>();
-                CredentialManager.RegisterToken(token, CredentialManager.CurrentTarget);
-            }
-            catch { }
+            var token = VcapRequest.Execute<AccessToken>();
+            CredentialManager.RegisterToken(token, CredentialManager.CurrentTarget);
         }
-
     }
 }

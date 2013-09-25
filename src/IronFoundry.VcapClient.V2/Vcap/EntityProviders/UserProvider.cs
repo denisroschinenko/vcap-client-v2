@@ -9,7 +9,7 @@ namespace IronFoundry.VcapClient.V2
         public UserProvider(VcapCredentialManager credentialManager, bool isLogin = false)
             : base(credentialManager, isLogin) { }
 
-        protected override string Constant
+        protected override string EntityName
         {
             get { return Constants.User; }
         }

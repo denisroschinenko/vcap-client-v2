@@ -9,7 +9,7 @@ namespace IronFoundry.VcapClient.V2
         {
         }
 
-        protected override string Constant
+        protected override string EntityName
         {
             get { return Constants.Route; }
         }

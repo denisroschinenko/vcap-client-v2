@@ -20,7 +20,7 @@ namespace IronFoundry.VcapClient.V2
             StableDataStorage = stableDataStorage;
         }
 
-        protected override string Constant
+        protected override string EntityName
         {
             get { return Constants.Application; }
         }
@@ -82,23 +82,17 @@ namespace IronFoundry.VcapClient.V2
             resource = StartApplication(resource.Metadata.ObjectId);
             return resource;
         }
-
-        public Resource<Application> BindRouteApplication(Guid applicationId, Guid routeId)
-        {
-            VcapRequest.BuildRequest(HttpMethod.Put, ContentTypes.Json, V2, Constant, applicationId, Constants.Route, routeId);
-            return VcapRequest.Execute<Resource<Application>>();
-        }
-
+        
         private ResourceFile[] CheckResources(ResourceFile[] resourcesArray)
         {
-            VcapRequest.BuildRequest(HttpMethod.Put, ContentTypes.Json, V2, Constants.ResourceMatch);
+            VcapRequest.BuildRequest(HttpMethod.Put, ContentTypes.Json, Constants.ResourceMatch);
             VcapRequest.AddBodyParameter("resources", resourcesArray);
             return VcapRequest.Execute<ResourceFile[]>();
         }
 
         private void UploadApplicationBits(Resource<Application> application, byte[] fileBytes, ResourceFile[] resourcesArray)
         {
-            VcapRequest.BuildRequest(HttpMethod.Put, ContentTypes.MultipartFormData, V2, Constant, application.Metadata.ObjectId, Constants.Bits);
+            VcapRequest.BuildRequest(HttpMethod.Put, ContentTypes.MultipartFormData, GetEntityNameV2(), application.Metadata.ObjectId, Constants.Bits);
             VcapRequest.AddFile("application", fileBytes, application.Metadata.ObjectId.ToString());
             VcapRequest.AddBodyParameter("resources", resourcesArray);
             VcapRequest.Execute();
@@ -106,8 +100,20 @@ namespace IronFoundry.VcapClient.V2
 
         public Stream Download(Guid applicationId)
         {
-            VcapRequest.BuildRequest(HttpMethod.Get, ContentTypes.Json, V2, Constants.Application, applicationId, Constants.Download);
+            VcapRequest.BuildRequest(HttpMethod.Get, ContentTypes.Json, GetEntityNameV2(), applicationId, Constants.Download);
             return VcapRequest.Download();
+        }
+
+        public Resource<Application> BindRouteApplication(Guid applicationId, Guid routeId)
+        {
+            VcapRequest.BuildRequest(HttpMethod.Put, ContentTypes.Json, GetEntityNameV2(), applicationId, Constants.Route, routeId);
+            return VcapRequest.Execute<Resource<Application>>();
+        }
+
+        public void UnbindRouteApplication(Guid applicationId, Guid routeId)
+        {
+            VcapRequest.BuildRequest(HttpMethod.Delete, ContentTypes.Json, GetEntityNameV2(), applicationId, Constants.Route, routeId);
+            VcapRequest.Execute();
         }
     }
 }

@@ -28,18 +28,23 @@ namespace IronFoundry.VcapClient.V2
         void UnbindServiceFromApplication(Guid serviceBindId);
         Stream DownloadApplication(Guid applicationId);
         void BindRouteApplication(Guid applicationId, Guid routeId);
+        void UnbindRouteApplication(Guid applicationId, Guid routeId);
 
         IEnumerable<Resource<Stack>> GetStacks();
         Resource<Stack> GetStack(Guid stackId);
 
+        Resource<Space> CreateSpace(SpaceManifest space);
         IEnumerable<Resource<Space>> GetSpaces();
         Resource<Space> GetSpace(Guid spaceId);
+        void DeleteSpace(Guid spaceId);
 
         IEnumerable<Resource<User>> GetUsers();
         Resource<User> GetUser(Guid userId);
 
         IEnumerable<Resource<Organization>> GetOrganizations();
         Resource<Organization> GetOrganization(Guid organizationId);
+        Resource<Organization> CreateOrganization(OrganizationManifest organization);
+        void DeleteOrganization(Guid organizationId);
 
         IEnumerable<Resource<Service>> GetServices();
         Resource<Service> GetService(Guid serviceId);
@@ -61,6 +66,7 @@ namespace IronFoundry.VcapClient.V2
         Resource<Event> GetEvent(Guid eventId);
 
         Resource<Route> CreateRoute(RouteManifest route);
+        void DeleteRoute(Guid routeId);
         IEnumerable<Resource<Route>> GetRoutes();
         Resource<Route> GetRoute(Guid routeId);
 

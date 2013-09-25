@@ -25,7 +25,7 @@ namespace IronFoundry.VcapClient.V2
         public static readonly string Info = "info";
 
         public static readonly string Bits = "bits";
-        public static readonly string ResourceMatch = "resource_match";
+        public static readonly string ResourceMatch = "v2/resource_match";
         public static readonly string Download = "download";
 
 

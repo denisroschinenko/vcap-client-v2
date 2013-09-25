@@ -41,4 +41,10 @@ namespace IronFoundry.VcapClient.V2.Models
         [JsonProperty(PropertyName = "app_events_url")]
         public string AppEventssUrl { get; set; }
     }
+
+    public class OrganizationManifest
+    {
+        [JsonProperty(PropertyName = "name")]
+        public string Name { get; set; }
+    }
 }

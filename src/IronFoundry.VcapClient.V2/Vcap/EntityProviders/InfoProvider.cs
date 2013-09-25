@@ -13,7 +13,7 @@ namespace IronFoundry.VcapClient.V2
         {
         }
 
-        protected override string Constant
+        protected override string EntityName
         {
             get { return Constants.Info; }
         }
@@ -45,7 +45,7 @@ namespace IronFoundry.VcapClient.V2
 
         public Info GetInfo()
         {
-            VcapRequest.BuildRequest(HttpMethod.Get, ContentTypes.Json, V2, Constant);
+            VcapRequest.BuildRequest(HttpMethod.Get, ContentTypes.Json, GetEntityNameV2());
             return VcapRequest.Execute<Info>();
         }
     }

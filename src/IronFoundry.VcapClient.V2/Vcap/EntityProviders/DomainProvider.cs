@@ -13,14 +13,14 @@ namespace IronFoundry.VcapClient.V2
         {
         }
 
-        protected override string Constant
+        protected override string EntityName
         {
             get { return Constants.Domain; }
         }
 
         public IEnumerable<Resource<Domain>> GetDomainsBySpace(Guid spaceId)
         {
-            VcapRequest.BuildRequest(HttpMethod.Get, ContentTypes.Json, V2, Constants.Space, spaceId, Constants.Domain);
+            VcapRequest.BuildRequest(HttpMethod.Get, ContentTypes.Json, GetEntityNameV2(Constants.Space), spaceId, EntityName);
             return VcapRequest.Execute<ResponseData<Domain>>().Resources;
         }
     }

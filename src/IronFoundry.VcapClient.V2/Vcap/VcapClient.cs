@@ -183,7 +183,11 @@ namespace IronFoundry.VcapClient.V2
             var provider = new ApplicationProvider(_credentialManager);
             provider.BindRouteApplication(applicationId, routeId);
         }
-
+        public void UnbindRouteApplication(Guid applicationId, Guid routeId)
+        {
+            var provider = new ApplicationProvider(_credentialManager);
+            provider.UnbindRouteApplication(applicationId, routeId);
+        }
 
         public IEnumerable<Resource<Stack>> GetStacks()
         {
@@ -197,6 +201,11 @@ namespace IronFoundry.VcapClient.V2
         }
 
 
+        public Resource<Space> CreateSpace(SpaceManifest space)
+        {
+            var provider = new SpaceProvider(_credentialManager);
+            return provider.Create(space);
+        }
         public IEnumerable<Resource<Space>> GetSpaces()
         {
             var provider = new SpaceProvider(_credentialManager);
@@ -206,6 +215,11 @@ namespace IronFoundry.VcapClient.V2
         {
             var provider = new SpaceProvider(_credentialManager);
             return provider.GetById(spaceId);
+        }
+        public void DeleteSpace(Guid spaceId)
+        {
+            var provider = new SpaceProvider(_credentialManager);
+            provider.Delete(spaceId);
         }
 
         public IEnumerable<Resource<User>> GetUsers()
@@ -229,6 +243,16 @@ namespace IronFoundry.VcapClient.V2
         {
             var provider = new OrganizationProvider(_credentialManager);
             return provider.GetById(organizationId);
+        }
+        public Resource<Organization> CreateOrganization(OrganizationManifest organization)
+        {
+            var provider = new OrganizationProvider(_credentialManager);
+            return provider.Create(organization);
+        }
+        public void DeleteOrganization(Guid organizationId)
+        {
+            var provider = new OrganizationProvider(_credentialManager);
+            provider.Delete(organizationId);
         }
 
 
@@ -313,6 +337,11 @@ namespace IronFoundry.VcapClient.V2
         {
             var provider = new RouteProvider(_credentialManager);
             return provider.Create(route);
+        }
+        public void DeleteRoute(Guid routeId)
+        {
+            var provider = new RouteProvider(_credentialManager);
+            provider.Delete(routeId);
         }
         public IEnumerable<Resource<Route>> GetRoutes()
         {

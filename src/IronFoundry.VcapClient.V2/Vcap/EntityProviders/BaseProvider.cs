@@ -15,9 +15,8 @@ namespace IronFoundry.VcapClient.V2
         private readonly string _queryParameter = "q=";
         private readonly string _inlineRelation = "inline-relations-depth=";
 
-        protected abstract string Constant { get; }
+        protected abstract string EntityName { get; }
 
-        protected readonly string V2 = "v2";
 
         protected BaseProvider(VcapCredentialManager credentialManager, bool isLogin)
         {
@@ -30,44 +29,48 @@ namespace IronFoundry.VcapClient.V2
 
         public virtual IEnumerable<Resource<T>> GetAll()
         {
-            VcapRequest.BuildRequest(HttpMethod.Get, ContentTypes.Json, V2, Constant);
+            VcapRequest.BuildRequest(HttpMethod.Get, ContentTypes.Json, GetEntityNameV2());
             return VcapRequest.Execute<ResponseData<T>>().Resources;
         }
 
         public virtual Resource<T> GetById(Guid entityId)
         {
-            VcapRequest.BuildRequest(HttpMethod.Get, ContentTypes.Json, V2, Constant, entityId);
+            VcapRequest.BuildRequest(HttpMethod.Get, ContentTypes.Json, GetEntityNameV2(), entityId);
             return VcapRequest.Execute<Resource<T>>();
         }
 
         public virtual Resource<T> GetByParam(string paramName, object paramValue)
         {
             var args = BuildFilteringArgs(new KeyValuePair<string, object>(paramName, paramValue));
-            VcapRequest.BuildRequest(HttpMethod.Get, ContentTypes.Json, V2, args);
+            VcapRequest.BuildRequest(HttpMethod.Get, ContentTypes.Json, args);
             var responceData = VcapRequest.Execute<ResponseData<T>>();
             return responceData.Resources.SingleOrDefault();
         }
 
         public virtual Resource<T> Create(U entity)
         {
-            VcapRequest.BuildRequest(HttpMethod.Post, ContentTypes.Json, V2, Constant);
-            VcapRequest.AddBodyParameter(Constant, entity);
+            VcapRequest.BuildRequest(HttpMethod.Post, ContentTypes.Json, GetEntityNameV2());
+            VcapRequest.AddBodyParameter(EntityName, entity);
             return VcapRequest.Execute<Resource<T>>();
         }
 
         public virtual Resource<T> Update(Resource<T> resource)
         {
-            VcapRequest.BuildRequest(HttpMethod.Put, ContentTypes.Json, V2, Constant, resource.Metadata.ObjectId);
-            VcapRequest.AddBodyParameter(Constant, resource.Entity);
+            VcapRequest.BuildRequest(HttpMethod.Put, ContentTypes.Json, GetEntityNameV2(), resource.Metadata.ObjectId);
+            VcapRequest.AddBodyParameter(EntityName, resource.Entity);
             return VcapRequest.Execute<Resource<T>>();
         }
 
         public virtual void Delete(Guid entityId)
         {
-            VcapRequest.BuildRequest(HttpMethod.Delete, ContentTypes.Json, V2, Constant, entityId);
+            VcapRequest.BuildRequest(HttpMethod.Delete, ContentTypes.Json, GetEntityNameV2(), entityId);
             VcapRequest.Execute<Resource<T>>();
         }
 
+        protected string GetEntityNameV2(string entityName = null)
+        {
+            return string.Format("v2/{0}", !string.IsNullOrWhiteSpace(entityName) ? entityName : EntityName);
+        }
         #region Auxillary methods
 
         private string BuildArgs()
@@ -77,7 +80,7 @@ namespace IronFoundry.VcapClient.V2
 
         private string BuildFilteringArgs(KeyValuePair<string, object> param)
         {
-            string args = string.Format("{0}?{1}{2}:{3}", Constant, _queryParameter, param.Key, param.Value);
+            string args = string.Format("{0}?{1}{2}:{3}", GetEntityNameV2(), _queryParameter, param.Key, param.Value);
             return args;
         }
 

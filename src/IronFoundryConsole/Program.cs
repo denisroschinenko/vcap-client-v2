@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Configuration;
 using IronFoundry.VcapClient.V2;
 using IronFoundry.VcapClient.V2.Models;
 
@@ -9,18 +10,32 @@ namespace IronFoundryConsole
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Enter CFv2 data:");
-            Console.WriteLine("Url:");
-            var url = Console.ReadLine();
+            var url = ConfigurationManager.AppSettings["url"];
+            var login = ConfigurationManager.AppSettings["login"];
+            var password = ConfigurationManager.AppSettings["password"];
 
-            Console.WriteLine("Login:");
-            var login = Console.ReadLine();
+            ConnectToCloudFoundry(url, login, password);
+        }
 
-            Console.WriteLine("Password");
-            var password = Console.ReadLine();
+        private static void ConnectToCloudFoundry(string url, string login, string password)
+        {
+            if (String.IsNullOrEmpty(url))
+            {
+                throw new ArgumentNullException("url");
+            }
 
-            var client = new VcapClient(new Uri(string.IsNullOrWhiteSpace(url) ? "http://api.192.168.1.77.xip.io" : url), new StableDataStorage());
-            client.Login(string.IsNullOrWhiteSpace(login) ? "admin" : login, string.IsNullOrWhiteSpace(password) ? "c1oudc0w" : password);
+            if (String.IsNullOrEmpty(login))
+            {
+                throw new ArgumentNullException("login");
+            }
+
+            if (String.IsNullOrEmpty(password))
+            {
+                throw new ArgumentNullException("password");
+            }
+
+            var client = new VcapClient(new Uri(url), new StableDataStorage());
+            client.Login(login, password);
 
 
             var application = new ApplicationManifest();

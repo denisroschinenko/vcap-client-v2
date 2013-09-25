@@ -25,6 +25,5 @@ namespace IronFoundry.VcapClient.V2
             var token = VcapRequest.Execute<AccessToken>();
             CredentialManager.RegisterToken(token, CredentialManager.CurrentTarget);
         }
-
     }
 }

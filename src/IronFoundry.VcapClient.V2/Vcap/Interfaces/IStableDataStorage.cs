@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using IronFoundry.VcapClient.V2.Models;
 
 namespace IronFoundry.VcapClient.V2

@@ -2,7 +2,7 @@
 
 namespace IronFoundry.VcapClient.V2
 {
-    internal class ServiceInstanceProvider : BaseProvider<ServiceInstance>
+    internal class ServiceInstanceProvider : BaseProvider<ServiceInstance, ServiceInstance>
     {
         public ServiceInstanceProvider(VcapCredentialManager credentialManager)
             : base(credentialManager)

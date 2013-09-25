@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using IronFoundry.VcapClient.V2.Models;
 
 namespace IronFoundry.VcapClient.V2
@@ -16,12 +17,17 @@ namespace IronFoundry.VcapClient.V2
         IEnumerable<Resource<Application>> GetApplications();
         Resource<Application> GetApplication(Guid applicationId);
         Resource<Application> GetApplication(string applicationName);
-        void PushApplication(Application application, string projectPath);
-        void UpdateApplication(Application application);
+        void PushApplication(ApplicationManifest application, string projectPath, string subDomain, string domain);
+        Resource<Application> CreateApplication(ApplicationManifest application);
+        Resource<Application> UpdateApplication(Resource<Application> resource);
         void DeleteApplication(Guid applicationId);
         void StartApplication(Guid applicationId);
         void StopApplication(Guid applicationId);
         void RestartApplication(Guid applicationId);
+        void BindServiceToApplication(Guid serviceInstanceId, Guid applicationId);
+        void UnbindServiceFromApplication(Guid serviceBindId);
+        Stream DownloadApplication(Guid applicationId);
+        void BindRouteApplication(Guid applicationId, Guid routeId);
 
         IEnumerable<Resource<Stack>> GetStacks();
         Resource<Stack> GetStack(Guid stackId);
@@ -47,12 +53,14 @@ namespace IronFoundry.VcapClient.V2
         IEnumerable<Resource<ServicePlan>> GetServicePlans();
         Resource<ServicePlan> GetServicePlan(Guid servicePlanId);
 
+        IEnumerable<Resource<Domain>> GetDomainsBySpace(Guid spaceId);
         IEnumerable<Resource<Domain>> GetDomains();
         Resource<Domain> GetDomain(Guid domainId);
 
         IEnumerable<Resource<Event>> GetEvents();
         Resource<Event> GetEvent(Guid eventId);
 
+        Resource<Route> CreateRoute(RouteManifest route);
         IEnumerable<Resource<Route>> GetRoutes();
         Resource<Route> GetRoute(Guid routeId);
 

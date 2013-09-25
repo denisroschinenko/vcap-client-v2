@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using IronFoundry.VcapClient.V2.Models;
 
 namespace IronFoundry.VcapClient.V2
@@ -20,16 +22,16 @@ namespace IronFoundry.VcapClient.V2
             _stableDataStorage = stableDataStorage;
         }
 
-        public VcapClient(Uri uri, IStableDataStorage stableDataStorage)
+        public VcapClient(Uri targetUri, IStableDataStorage stableDataStorage)
             : this(stableDataStorage)
         {
-            _credentialManager = new VcapCredentialManager(uri, stableDataStorage);
+            InitializationCredentialManager(targetUri);
         }
 
-        public VcapClient(string uri, IStableDataStorage stableDataStorage)
+        public VcapClient(string targetUrl, IStableDataStorage stableDataStorage)
             : this(stableDataStorage)
         {
-            Target(uri);
+            Target(targetUrl);
         }
 
         #endregion
@@ -50,20 +52,30 @@ namespace IronFoundry.VcapClient.V2
 
         #region Methods
 
-        public void Target(string uri)
+        private void InitializationCredentialManager(Uri targetUri)
         {
-            if (string.IsNullOrWhiteSpace(uri))
+            _credentialManager = new VcapCredentialManager(targetUri, _stableDataStorage);
+
+            var info = GetInfo();
+
+            _credentialManager.SetLoginUri(info.AuthorizationUrl);
+
+        }
+
+        public void Target(string targetUrl)
+        {
+            if (string.IsNullOrWhiteSpace(targetUrl))
             {
-                throw new ArgumentException("uri");
+                throw new ArgumentException("targetUrl");
             }
 
             Uri validatedUri;
-            if (!Uri.TryCreate(uri, UriKind.Absolute, out validatedUri))
+            if (!Uri.TryCreate(targetUrl, UriKind.Absolute, out validatedUri))
             {
-                validatedUri = new Uri("http://" + uri);
+                validatedUri = new Uri("http://" + targetUrl);
             }
 
-            _credentialManager = new VcapCredentialManager(validatedUri, _stableDataStorage);
+            InitializationCredentialManager(validatedUri);
         }
 
         public void Login()
@@ -92,15 +104,41 @@ namespace IronFoundry.VcapClient.V2
             var provider = new ApplicationProvider(_credentialManager);
             return provider.GetByParam(Constants.ParamName, applicationName);
         }
-        public void PushApplication(Application application, string projectPath)
+        public void PushApplication(ApplicationManifest application, string projectPath, string subDomain, string domain)
+        {
+            Resource<Route> resourceRoute = null;
+            if (!string.IsNullOrWhiteSpace(domain) && !string.IsNullOrWhiteSpace(subDomain))
+            {
+                var bindDomain = GetDomainsBySpace(application.SpaceGuid).SingleOrDefault(x => x.Entity.Name.Equals(domain));
+                resourceRoute = GetRoutes().FirstOrDefault(x => x.Entity.Host.Equals(subDomain));
+                if (resourceRoute == null)
+                {
+                    var routeManifest = new RouteManifest
+                        {
+                            DomainId = bindDomain.Metadata.ObjectId,
+                            Host = subDomain,
+                            SpaceId = application.SpaceGuid
+                        };
+                    resourceRoute = CreateRoute(routeManifest);
+                }
+            }
+
+            var provider = new ApplicationProvider(_credentialManager, _stableDataStorage);
+            var resource = provider.PushApplication(application, projectPath);
+            if (resourceRoute != null)
+            {
+                provider.BindRouteApplication(resource.Metadata.ObjectId, resourceRoute.Metadata.ObjectId);
+            }
+        }
+        public Resource<Application> CreateApplication(ApplicationManifest application)
         {
             var provider = new ApplicationProvider(_credentialManager, _stableDataStorage);
-            provider.PushApplication(application, projectPath);
+            return provider.Create(application);
         }
-        public void UpdateApplication(Application application)
+        public Resource<Application> UpdateApplication(Resource<Application> resource)
         {
             var provider = new ApplicationProvider(_credentialManager);
-            provider.Update(application);
+            return provider.Update(resource);
         }
         public void DeleteApplication(Guid applicationId)
         {
@@ -122,6 +160,28 @@ namespace IronFoundry.VcapClient.V2
         {
             var provider = new ApplicationProvider(_credentialManager);
             provider.RestartApplication(applicationId);
+        }
+        public void BindServiceToApplication(Guid serviceInstanceId, Guid applicationId)
+        {
+            var provider = new ServiceBindProvider(_credentialManager);
+            provider.BindService(serviceInstanceId, applicationId);
+
+        }
+        public void UnbindServiceFromApplication(Guid serviceBindId)
+        {
+            var provider = new ServiceBindProvider(_credentialManager);
+            provider.Delete(serviceBindId);
+
+        }
+        public Stream DownloadApplication(Guid applicationId)
+        {
+            var provider = new ApplicationProvider(_credentialManager);
+            return provider.Download(applicationId);
+        }
+        public void BindRouteApplication(Guid applicationId, Guid routeId)
+        {
+            var provider = new ApplicationProvider(_credentialManager);
+            provider.BindRouteApplication(applicationId, routeId);
         }
 
 
@@ -220,6 +280,11 @@ namespace IronFoundry.VcapClient.V2
         }
 
 
+        public IEnumerable<Resource<Domain>> GetDomainsBySpace(Guid spaceId)
+        {
+            var provider = new DomainProvider(_credentialManager);
+            return provider.GetDomainsBySpace(spaceId);
+        }
         public IEnumerable<Resource<Domain>> GetDomains()
         {
             var provider = new DomainProvider(_credentialManager);
@@ -244,6 +309,11 @@ namespace IronFoundry.VcapClient.V2
         }
 
 
+        public Resource<Route> CreateRoute(RouteManifest route)
+        {
+            var provider = new RouteProvider(_credentialManager);
+            return provider.Create(route);
+        }
         public IEnumerable<Resource<Route>> GetRoutes()
         {
             var provider = new RouteProvider(_credentialManager);

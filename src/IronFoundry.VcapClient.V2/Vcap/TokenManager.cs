@@ -14,21 +14,13 @@ namespace IronFoundry.VcapClient.V2
         public TokenManager(IStableDataStorage dataStorage)
         {
             _dataStorage = dataStorage;
+            _tokenDict = JsonConvert.DeserializeObject<Dictionary<Uri, AccessToken>>(_dataStorage.ReadToken());
         }
 
         public AccessToken GetToken(Uri target)
         {
             AccessToken token;
-            if (_tokenDict.ContainsKey(target))
-            {
-                token = _tokenDict[target];
-            }
-            else
-            {
-                _tokenDict = JsonConvert.DeserializeObject<Dictionary<Uri, AccessToken>>(_dataStorage.ReadToken());
-                token = _tokenDict != null ? _tokenDict[target] : null;
-
-            }
+            _tokenDict.TryGetValue(target, out token);
             return token;
         }
 

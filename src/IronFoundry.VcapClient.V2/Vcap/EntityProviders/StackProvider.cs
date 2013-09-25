@@ -2,7 +2,7 @@
 
 namespace IronFoundry.VcapClient.V2
 {
-    internal class StackProvider : BaseProvider<Stack>
+    internal class StackProvider : BaseProvider<Stack, Stack>
     {
         public StackProvider(VcapCredentialManager credentialManager)
             : base(credentialManager)

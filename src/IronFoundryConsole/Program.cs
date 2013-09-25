@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 using IronFoundry.VcapClient.V2;
 using IronFoundry.VcapClient.V2.Models;
 
@@ -22,32 +19,68 @@ namespace IronFoundryConsole
             Console.WriteLine("Password");
             var password = Console.ReadLine();
 
-            var client = new VcapClient(new Uri(url), new StableDataStorage());
-            client.Login(login ?? "micro@vcap.me", password ?? "micr0@micr0");
+            var client = new VcapClient(new Uri(string.IsNullOrWhiteSpace(url) ? "http://api.192.168.1.77.xip.io" : url), new StableDataStorage());
+            client.Login(string.IsNullOrWhiteSpace(login) ? "admin" : login, string.IsNullOrWhiteSpace(password) ? "c1oudc0w" : password);
 
-            Console.WriteLine("--- Organizations: ---");
-            foreach (var organization in client.GetOrganizations())
+
+            var application = new ApplicationManifest();
+            application.Name = "test";
+            application.StackGuid = Guid.Parse("c9cf45fe-ee2e-4157-acdf-a5915b9bb15d");
+            application.Memory = 128;
+            application.NumberInstance = 1;
+            application.SpaceGuid = Guid.Parse("93fad9b7-db0b-4c4d-8ffe-d456d91af608");
+            var path = @"d:\MvcAltorosApplication\MvcAltorosApplication";
+            client.PushApplication(application, path, "test", "vcap.me");
+
+            //Console.WriteLine("Start downloading");
+            //Console.ReadLine();
+
+            //var app = client.GetApplication("test");
+            //var stream = client.DownloadApplication(app.Metadata.ObjectId);
+            //DownloadFile(stream);
+
+            //Console.WriteLine("--- Organizations: ---");
+            //foreach (var organization in client.GetOrganizations())
+            //{
+            //    Console.WriteLine(organization.Entity.Name);
+            //}
+            //Console.WriteLine();
+
+            //Console.WriteLine("--- Spaces: ---");
+            //foreach (var space in client.GetSpaces())
+            //{
+            //    Console.WriteLine(space.Entity.Name);
+            //}
+            //Console.WriteLine();
+
+            //Console.WriteLine("--- Apps: ---");
+            //foreach (var app in client.GetApplications())
+            //{
+            //    Console.WriteLine(app.Entity.Name);
+            //}
+            //Console.WriteLine();
+
+            //Console.WriteLine("Everything is OK.");
+            //Console.ReadLine();
+        }
+
+
+        public static void DownloadFile(Stream stream)
+        {
+            using (Stream file = File.Create("123"))
             {
-                Console.WriteLine(organization.Entity.Name);
+                CopyStream(stream, file);
             }
-            Console.WriteLine();
+        }
 
-            Console.WriteLine("--- Spaces: ---");
-            foreach (var space in client.GetSpaces())
+        private static void CopyStream(Stream input, Stream output)
+        {
+            byte[] buffer = new byte[8 * 1024];
+            int len;
+            while ((len = input.Read(buffer, 0, buffer.Length)) > 0)
             {
-                Console.WriteLine(space.Entity.Name);
+                output.Write(buffer, 0, len);
             }
-            Console.WriteLine();
-
-            Console.WriteLine("--- Apps: ---");
-            foreach (var app in client.GetApplications())
-            {
-                Console.WriteLine(app.Entity.Name);
-            }
-            Console.WriteLine();
-
-            Console.WriteLine("Everything is OK.");
-            Console.ReadLine();
         }
     }
 }

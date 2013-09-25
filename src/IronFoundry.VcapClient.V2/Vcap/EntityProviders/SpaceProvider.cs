@@ -2,7 +2,7 @@
 
 namespace IronFoundry.VcapClient.V2
 {
-    internal class SpaceProvider : BaseProvider<Space>
+    internal class SpaceProvider : BaseProvider<Space, Space>
     {
         public SpaceProvider(VcapCredentialManager credentialManager) :
             base(credentialManager)

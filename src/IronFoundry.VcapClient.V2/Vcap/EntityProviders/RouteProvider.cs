@@ -2,7 +2,7 @@
 
 namespace IronFoundry.VcapClient.V2
 {
-    internal class RouteProvider : BaseProvider<Route>
+    internal class RouteProvider : BaseProvider<Route, RouteManifest>
     {
         public RouteProvider(VcapCredentialManager credentialManager)
             : base(credentialManager)

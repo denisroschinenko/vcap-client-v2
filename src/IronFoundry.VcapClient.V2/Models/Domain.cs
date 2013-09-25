@@ -14,6 +14,9 @@ namespace IronFoundry.VcapClient.V2.Models
         [JsonProperty(PropertyName = "wildcard")]
         public bool IsWilcardExist { get; set; }
 
+        [JsonProperty(PropertyName = "owning_organization_url")]
+        public string OwningOrganizationUrl { get; set; }
+
         [JsonProperty(PropertyName = "spaces_url")]
         public string SpacesUrl { get; set; }
     }

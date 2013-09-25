@@ -4,7 +4,7 @@ using IronFoundry.VcapClient.V2.Models;
 namespace IronFoundry.VcapClient.V2
 {
 
-    internal class OrganizationProvider : BaseProvider<Organization>
+    internal class OrganizationProvider : BaseProvider<Organization, Organization>
     {
         public OrganizationProvider(VcapCredentialManager credentialManager) : base(credentialManager)
         {

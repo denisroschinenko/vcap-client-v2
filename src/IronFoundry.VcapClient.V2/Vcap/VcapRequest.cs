@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -27,6 +28,18 @@ namespace IronFoundry.VcapClient.V2
         public TResponse Execute<TResponse>() where TResponse : class
         {
             var tasks = _client.ExecuteAsync<TResponse>(_request);
+            return tasks.Result;
+        }
+
+        public void Execute()
+        {
+            var task = _client.ExecuteAsync(_request);
+            task.Wait();
+        }
+
+        public Stream Download()
+        {
+            var tasks = _client.DownloadData(_request);
             return tasks.Result;
         }
 

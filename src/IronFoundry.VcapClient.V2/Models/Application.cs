@@ -45,8 +45,7 @@ namespace IronFoundry.VcapClient.V2.Models
         [JsonProperty(PropertyName = "state")]
         public string State { get; set; }
 
-        [JsonIgnore]
-        //[JsonProperty(PropertyName = "version")]
+        [JsonProperty(PropertyName = "version")]
         public Guid Version { get; set; }
 
         [JsonProperty(PropertyName = "command")]
@@ -75,5 +74,23 @@ namespace IronFoundry.VcapClient.V2.Models
 
         [JsonProperty(PropertyName = "events_url")]
         public string EventsUrl { get; set; }
+    }
+
+    public class ApplicationManifest
+    {
+        [JsonProperty(PropertyName = "name")]
+        public string Name { get; set; }
+    
+        [JsonProperty(PropertyName = "space_guid")]
+        public Guid SpaceGuid { get; set; }
+
+        [JsonProperty(PropertyName = "stack_guid")]
+        public Guid StackGuid { get; set; }
+
+        [JsonProperty(PropertyName = "memory")]
+        public long Memory { get; set; }
+
+        [JsonProperty(PropertyName = "instances")]
+        public int NumberInstance { get; set; }
     }
 }

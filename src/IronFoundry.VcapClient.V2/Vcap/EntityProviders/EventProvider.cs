@@ -2,7 +2,7 @@
 
 namespace IronFoundry.VcapClient.V2
 {
-    internal class EventProvider : BaseProvider<Event>
+    internal class EventProvider : BaseProvider<Event, Event>
     {
         public EventProvider(VcapCredentialManager credentialManager)
             : base(credentialManager)

@@ -1,13 +1,10 @@
-﻿
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
+﻿using System.Net.Http;
 using IronFoundry.VcapClient.V2.Models;
 using PortableRest;
 
 namespace IronFoundry.VcapClient.V2
 {
-    internal class UserProvider : BaseProvider<User>
+    internal class UserProvider : BaseProvider<User, User>
     {
         public UserProvider(VcapCredentialManager credentialManager, bool isLogin = false)
             : base(credentialManager, isLogin) { }
@@ -25,12 +22,8 @@ namespace IronFoundry.VcapClient.V2
             VcapRequest.AddBodyParameter("username", email);
             VcapRequest.AddBodyParameter("password", password);
 
-            try
-            {
-                var token = VcapRequest.Execute<AccessToken>();
-                CredentialManager.RegisterToken(token, CredentialManager.CurrentTarget);
-            }
-            catch { }
+            var token = VcapRequest.Execute<AccessToken>();
+            CredentialManager.RegisterToken(token, CredentialManager.CurrentTarget);
         }
 
     }

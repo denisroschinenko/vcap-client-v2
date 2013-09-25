@@ -73,4 +73,13 @@ namespace IronFoundry.VcapClient.V2.Models
 
         #endregion
     }
+
+    public class ServiceBindManifest
+    {
+        [JsonProperty(PropertyName = "app_guid")]
+        public Guid ApplicationId { get; set; }
+
+        [JsonProperty(PropertyName = "service_instance_guid")]
+        public Guid ServiceInstanceId { get; set; }
+    }
 }

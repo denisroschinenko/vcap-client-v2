@@ -7,7 +7,7 @@ using PortableRest;
 
 namespace IronFoundry.VcapClient.V2
 {
-    internal class ApplicationProvider : BaseProvider<Application>
+    internal class ApplicationProvider : BaseProvider<Application, ApplicationManifest>
     {
         private readonly IStableDataStorage StableDataStorage;
 
@@ -25,17 +25,17 @@ namespace IronFoundry.VcapClient.V2
             get { return Constants.Application; }
         }
 
-        public void StartApplication(Guid applicationId)
+        public Resource<Application> StartApplication(Guid applicationId)
         {
-            var application = GetById(applicationId);
-            application.Entity.State = Application.ApplicationStates.Started;
-            Update(application.Entity);
+            var resource = GetById(applicationId);
+            resource.Entity.State = Application.ApplicationStates.Started;
+            return Update(resource);
         }
-        public void StopApplication(Guid applicationId)
+        public Resource<Application> StopApplication(Guid applicationId)
         {
-            var application = GetById(applicationId);
-            application.Entity.State = Application.ApplicationStates.Stopped;
-            Update(application.Entity);
+            var resource = GetById(applicationId);
+            resource.Entity.State = Application.ApplicationStates.Stopped;
+            return Update(resource);
 
         }
         public void RestartApplication(Guid applicationId)
@@ -44,32 +44,70 @@ namespace IronFoundry.VcapClient.V2
             StartApplication(applicationId);
         }
 
-        public void PushApplication(Application application, string projectPath)
+        public Resource<Application> PushApplication(ApplicationManifest application, string projectPath)
         {
-            var entity = Create(application);
+            if (string.IsNullOrWhiteSpace(projectPath))
+            {
+                throw new ArgumentException("Path must be entered");
+            }
+            if (string.IsNullOrWhiteSpace(application.Name))
+            {
+                throw new ArgumentException("Name must be entered");
+            }
+            if (Guid.Empty == application.SpaceGuid)
+            {
+                throw new ArgumentException("Space must be entered");
+            }
+            if (Guid.Empty == application.StackGuid)
+            {
+                throw new ArgumentException("Stack must be entered");
+            }
+            if (application.Memory == 0)
+            {
+                throw new ArgumentException("Memory must be entered");
+            }
+            if (application.NumberInstance == 0)
+            {
+                throw new ArgumentException("Instance must be entered");
+            }
+
+            var resource = Create(application);
 
             var tempDirectoryPath = StableDataStorage.CopyProjectToTempDirectory(projectPath);
             var resources = StableDataStorage.FilteringResources(tempDirectoryPath, CheckResources);
             byte[] fileBytes = StableDataStorage.CreateZipFile(tempDirectoryPath);
 
-            UploadApplicationBits(entity, fileBytes, resources);
+            UploadApplicationBits(resource, fileBytes, resources);
 
-            //StartApplication(entity.Metadata.ObjectId);
+            resource = StartApplication(resource.Metadata.ObjectId);
+            return resource;
+        }
+
+        public Resource<Application> BindRouteApplication(Guid applicationId, Guid routeId)
+        {
+            VcapRequest.BuildRequest(HttpMethod.Put, ContentTypes.Json, V2, Constant, applicationId, Constants.Route, routeId);
+            return VcapRequest.Execute<Resource<Application>>();
         }
 
         private ResourceFile[] CheckResources(ResourceFile[] resourcesArray)
         {
-            VcapRequest.BuildRequest(HttpMethod.Put, ContentTypes.Json, Constants.ResourceMatch);
+            VcapRequest.BuildRequest(HttpMethod.Put, ContentTypes.Json, V2, Constants.ResourceMatch);
             VcapRequest.AddBodyParameter("resources", resourcesArray);
             return VcapRequest.Execute<ResourceFile[]>();
         }
 
         private void UploadApplicationBits(Resource<Application> application, byte[] fileBytes, ResourceFile[] resourcesArray)
         {
-            VcapRequest.BuildRequest(HttpMethod.Put, ContentTypes.MultipartFormData, Constant, application.Metadata.ObjectId, Constants.Bits);
+            VcapRequest.BuildRequest(HttpMethod.Put, ContentTypes.MultipartFormData, V2, Constant, application.Metadata.ObjectId, Constants.Bits);
             VcapRequest.AddFile("application", fileBytes, application.Metadata.ObjectId.ToString());
             VcapRequest.AddBodyParameter("resources", resourcesArray);
-            VcapRequest.Execute<object>();
+            VcapRequest.Execute();
+        }
+
+        public Stream Download(Guid applicationId)
+        {
+            VcapRequest.BuildRequest(HttpMethod.Get, ContentTypes.Json, V2, Constants.Application, applicationId, Constants.Download);
+            return VcapRequest.Download();
         }
     }
 }

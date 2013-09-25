@@ -14,12 +14,9 @@ namespace IronFoundry.VcapClient.V2
 
         #region Constructors
 
-        public VcapCredentialManager(Uri uri, IStableDataStorage stableDataStorage)
+        public VcapCredentialManager(Uri targetUri, IStableDataStorage stableDataStorage)
         {
-            _currentTarget = uri;
-
-            _loginTarget = new Uri(uri.AbsoluteUri.Replace("api", "login"));
-
+            _currentTarget = targetUri;
             _tokenManager = new TokenManager(stableDataStorage);
         }
 
@@ -39,7 +36,7 @@ namespace IronFoundry.VcapClient.V2
 
         public bool HasToken
         {
-            get { return !string.IsNullOrWhiteSpace(CurrentToken.Token); }
+            get { return CurrentToken != null && !string.IsNullOrWhiteSpace(CurrentToken.Token); }
         }
 
         public AccessToken CurrentToken
@@ -55,6 +52,11 @@ namespace IronFoundry.VcapClient.V2
         public void RegisterToken(AccessToken token, Uri currentTarget)
         {
             _tokenManager.RegisterToken(token, currentTarget);
+        }
+
+        public void SetLoginUri(Uri loginUri)
+        {
+            _loginTarget = loginUri;
         }
     }
 

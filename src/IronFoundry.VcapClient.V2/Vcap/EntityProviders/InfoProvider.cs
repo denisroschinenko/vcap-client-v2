@@ -6,7 +6,7 @@ using PortableRest;
 
 namespace IronFoundry.VcapClient.V2
 {
-    internal class InfoProvider : BaseProvider<Info>
+    internal class InfoProvider : BaseProvider<Info, Info>
     {
         public InfoProvider(VcapCredentialManager credentialManager)
             : base(credentialManager)
@@ -28,7 +28,7 @@ namespace IronFoundry.VcapClient.V2
             throw new NotSupportedException();
         }
 
-        public override Resource<Info> Update(Info entity)
+        public override Resource<Info> Update(Resource<Info> resource)
         {
             throw new NotSupportedException();
         }
@@ -40,12 +40,12 @@ namespace IronFoundry.VcapClient.V2
 
         public override Resource<Info> GetById(Guid entityId)
         {
-            throw  new NotSupportedException();
+            throw new NotSupportedException();
         }
 
         public Info GetInfo()
         {
-            VcapRequest.BuildRequest(HttpMethod.Get, ContentTypes.Json, Constant);
+            VcapRequest.BuildRequest(HttpMethod.Get, ContentTypes.Json, V2, Constant);
             return VcapRequest.Execute<Info>();
         }
     }

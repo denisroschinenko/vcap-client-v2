@@ -104,36 +104,27 @@ namespace IronFoundry.VcapClient.V2
             var provider = new ApplicationProvider(_credentialManager);
             return provider.GetByParam(Constants.ParamName, applicationName);
         }
-        public void PushApplication(ApplicationManifest application, string projectPath, string subDomain, string domain)
+        public void PushApplication(string name, Guid stackId, Guid spaceId, long memory, int numerInstance, string projectPath, string subDomain, string domain)
         {
             Resource<Route> resourceRoute = null;
             if (!string.IsNullOrWhiteSpace(domain) && !string.IsNullOrWhiteSpace(subDomain))
             {
-                var bindDomain = GetDomainsBySpace(application.SpaceGuid).SingleOrDefault(x => x.Entity.Name.Equals(domain));
-                resourceRoute = GetRoutes().FirstOrDefault(x => x.Entity.Host.Equals(subDomain));
-                if (resourceRoute == null)
-                {
-                    var routeManifest = new RouteManifest
-                        {
-                            DomainId = bindDomain.Metadata.ObjectId,
-                            Host = subDomain,
-                            SpaceId = application.SpaceGuid
-                        };
-                    resourceRoute = CreateRoute(routeManifest);
-                }
+                var bindDomain = GetDomainsBySpace(spaceId).SingleOrDefault(x => x.Entity.Name.Equals(domain));
+                resourceRoute = GetRoutes().FirstOrDefault(x => x.Entity.Host.Equals(subDomain)) ??
+                                CreateRoute(subDomain, bindDomain.Metadata.ObjectId, spaceId);
             }
 
             var provider = new ApplicationProvider(_credentialManager, _stableDataStorage);
-            var resource = provider.PushApplication(application, projectPath);
+            var resource = provider.PushApplication(name, stackId, spaceId, memory, numerInstance, projectPath);
             if (resourceRoute != null)
             {
                 provider.BindRouteApplication(resource.Metadata.ObjectId, resourceRoute.Metadata.ObjectId);
             }
         }
-        public Resource<Application> CreateApplication(ApplicationManifest application)
+        public Resource<Application> CreateApplication(string name, Guid stackId, Guid spaceId, long memory, int numerInstance)
         {
             var provider = new ApplicationProvider(_credentialManager, _stableDataStorage);
-            return provider.Create(application);
+            return provider.Create(name, stackId, spaceId, memory, numerInstance);
         }
         public Resource<Application> UpdateApplication(Resource<Application> resource)
         {
@@ -201,10 +192,10 @@ namespace IronFoundry.VcapClient.V2
         }
 
 
-        public Resource<Space> CreateSpace(SpaceManifest space)
+        public Resource<Space> CreateSpace(string name, Guid organizationId)
         {
             var provider = new SpaceProvider(_credentialManager);
-            return provider.Create(space);
+            return provider.Create(name, organizationId);
         }
         public IEnumerable<Resource<Space>> GetSpaces()
         {
@@ -244,10 +235,10 @@ namespace IronFoundry.VcapClient.V2
             var provider = new OrganizationProvider(_credentialManager);
             return provider.GetById(organizationId);
         }
-        public Resource<Organization> CreateOrganization(OrganizationManifest organization)
+        public Resource<Organization> CreateOrganization(string name)
         {
             var provider = new OrganizationProvider(_credentialManager);
-            return provider.Create(organization);
+            return provider.Create(name);
         }
         public void DeleteOrganization(Guid organizationId)
         {
@@ -319,6 +310,16 @@ namespace IronFoundry.VcapClient.V2
             var provider = new DomainProvider(_credentialManager);
             return provider.GetById(domainId);
         }
+        public Resource<Domain> MapDomain(string name, Guid? organizationId, bool isWilcardExist = true)
+        {
+            var provider = new DomainProvider(_credentialManager);
+            return provider.Create(name, organizationId, isWilcardExist);
+        }
+        public void UnmapDomain(Guid domainId)
+        {
+            var provider = new DomainProvider(_credentialManager);
+            provider.Delete(domainId);
+        }
 
 
         public IEnumerable<Resource<Event>> GetEvents()
@@ -333,10 +334,10 @@ namespace IronFoundry.VcapClient.V2
         }
 
 
-        public Resource<Route> CreateRoute(RouteManifest route)
+        public Resource<Route> CreateRoute(string host, Guid domainId, Guid spaceId)
         {
             var provider = new RouteProvider(_credentialManager);
-            return provider.Create(route);
+            return provider.Create(host, domainId, spaceId);
         }
         public void DeleteRoute(Guid routeId)
         {

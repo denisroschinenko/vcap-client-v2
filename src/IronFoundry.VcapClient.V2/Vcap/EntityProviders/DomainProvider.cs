@@ -6,7 +6,7 @@ using PortableRest;
 
 namespace IronFoundry.VcapClient.V2
 {
-    internal class DomainProvider : BaseProvider<Domain, Domain>
+    internal class DomainProvider : BaseProvider<Domain, DomainManifest>
     {
         public DomainProvider(VcapCredentialManager credentialManager)
             : base(credentialManager)
@@ -22,6 +22,22 @@ namespace IronFoundry.VcapClient.V2
         {
             VcapRequest.BuildRequest(HttpMethod.Get, ContentTypes.Json, GetEntityNameV2(Constants.Space), spaceId, EntityName);
             return VcapRequest.Execute<ResponseData<Domain>>().Resources;
+        }
+
+        public Resource<Domain> Create(string name, Guid? organizationId, bool isWilcardExist = true)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentNullException("Name must be entered");
+            }
+
+            var domainManifest = new DomainManifest
+                {
+                    Name = name,
+                    OwningOrganizationId = organizationId,
+                    IsWilcardExist = isWilcardExist
+                };
+            return Create(domainManifest);
         }
     }
 }

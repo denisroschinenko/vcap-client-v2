@@ -2,7 +2,6 @@
 using System.IO;
 using System.Configuration;
 using IronFoundry.VcapClient.V2;
-using IronFoundry.VcapClient.V2.Models;
 
 namespace IronFoundryConsole
 {
@@ -37,15 +36,13 @@ namespace IronFoundryConsole
             var client = new VcapClient(new Uri(url), new StableDataStorage());
             client.Login(login, password);
 
-
-            var application = new ApplicationManifest();
-            application.Name = "test";
-            application.StackGuid = Guid.Parse("c9cf45fe-ee2e-4157-acdf-a5915b9bb15d");
-            application.Memory = 128;
-            application.NumberInstance = 1;
-            application.SpaceGuid = Guid.Parse("93fad9b7-db0b-4c4d-8ffe-d456d91af608");
-            var path = @"d:\MvcAltorosApplication\MvcAltorosApplication";
-            client.PushApplication(application, path, "test", "vcap.me");
+            //var name = "test";
+            //var stackGuid = Guid.Parse("c9cf45fe-ee2e-4157-acdf-a5915b9bb15d");
+            //var memory = 128;
+            //var numberInstance = 1;
+            //var spaceGuid = Guid.Parse("93fad9b7-db0b-4c4d-8ffe-d456d91af608");
+            //var path = @"d:\MvcAltorosApplication\MvcAltorosApplication";
+            //client.PushApplication(name, stackGuid, spaceGuid, memory, numberInstance, path, "test", "vcap.me");
 
             //Console.WriteLine("Start downloading");
             //Console.ReadLine();

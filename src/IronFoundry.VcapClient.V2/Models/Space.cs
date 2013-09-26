@@ -37,7 +37,7 @@ namespace IronFoundry.VcapClient.V2.Models
     }
 
 
-    public class SpaceManifest
+    internal class SpaceManifest
     {
         [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }

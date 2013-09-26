@@ -24,7 +24,7 @@ namespace IronFoundry.VcapClient.V2.Models
         public string ApplicationUrl { get; set; }
     }
 
-    public class RouteManifest
+    internal class RouteManifest
     {
         [JsonProperty(PropertyName = "host")]
         public string Host { get; set; }

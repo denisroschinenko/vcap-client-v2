@@ -44,34 +44,26 @@ namespace IronFoundry.VcapClient.V2
             StartApplication(applicationId);
         }
 
-        public Resource<Application> PushApplication(ApplicationManifest application, string projectPath)
+        public Resource<Application> PushApplication(string name, Guid stackId, Guid spaceId, long memory, int numerInstance, string projectPath)
         {
             if (string.IsNullOrWhiteSpace(projectPath))
             {
-                throw new ArgumentException("Path must be entered");
+                throw new ArgumentNullException("Path must be entered");
             }
-            if (string.IsNullOrWhiteSpace(application.Name))
+            if (string.IsNullOrWhiteSpace(name))
             {
-                throw new ArgumentException("Name must be entered");
+                throw new ArgumentNullException("Name must be entered");
             }
-            if (Guid.Empty == application.SpaceGuid)
+            if (memory <= 0)
             {
-                throw new ArgumentException("Space must be entered");
+                throw new ArgumentNullException("Memory must be entered");
             }
-            if (Guid.Empty == application.StackGuid)
+            if (numerInstance <= 0)
             {
-                throw new ArgumentException("Stack must be entered");
-            }
-            if (application.Memory == 0)
-            {
-                throw new ArgumentException("Memory must be entered");
-            }
-            if (application.NumberInstance == 0)
-            {
-                throw new ArgumentException("Instance must be entered");
+                throw new ArgumentNullException("Instance must be entered");
             }
 
-            var resource = Create(application);
+            var resource = Create(name, stackId, spaceId, memory, numerInstance);
 
             var tempDirectoryPath = StableDataStorage.CopyProjectToTempDirectory(projectPath);
             var resources = StableDataStorage.FilteringResources(tempDirectoryPath, CheckResources);
@@ -82,10 +74,10 @@ namespace IronFoundry.VcapClient.V2
             resource = StartApplication(resource.Metadata.ObjectId);
             return resource;
         }
-        
+
         private ResourceFile[] CheckResources(ResourceFile[] resourcesArray)
         {
-            VcapRequest.BuildRequest(HttpMethod.Put, ContentTypes.Json, Constants.ResourceMatch);
+            VcapRequest.BuildRequest(HttpMethod.Put, ContentTypes.Json, GetEntityNameV2(Constants.ResourceMatch));
             VcapRequest.AddBodyParameter("resources", resourcesArray);
             return VcapRequest.Execute<ResourceFile[]>();
         }
@@ -114,6 +106,20 @@ namespace IronFoundry.VcapClient.V2
         {
             VcapRequest.BuildRequest(HttpMethod.Delete, ContentTypes.Json, GetEntityNameV2(), applicationId, Constants.Route, routeId);
             VcapRequest.Execute();
+        }
+
+        public Resource<Application> Create(string name, Guid stackId, Guid spaceId, long memory, int numerInstance)
+        {
+            var applicationManifest = new ApplicationManifest
+                {
+                    Name = name,
+                    StackGuid = stackId,
+                    SpaceGuid = spaceId,
+                    Memory = memory,
+                    NumberInstance = numerInstance
+                };
+
+            return Create(applicationManifest);
         }
     }
 }

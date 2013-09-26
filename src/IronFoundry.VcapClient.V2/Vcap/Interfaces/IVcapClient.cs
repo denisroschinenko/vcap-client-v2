@@ -17,8 +17,8 @@ namespace IronFoundry.VcapClient.V2
         IEnumerable<Resource<Application>> GetApplications();
         Resource<Application> GetApplication(Guid applicationId);
         Resource<Application> GetApplication(string applicationName);
-        void PushApplication(ApplicationManifest application, string projectPath, string subDomain, string domain);
-        Resource<Application> CreateApplication(ApplicationManifest application);
+        void PushApplication(string name, Guid stackId, Guid spaceId, long memory, int numerInstance, string projectPath, string subDomain, string domain);
+        Resource<Application> CreateApplication(string name, Guid stackId, Guid spaceId, long memory, int numerInstance);
         Resource<Application> UpdateApplication(Resource<Application> resource);
         void DeleteApplication(Guid applicationId);
         void StartApplication(Guid applicationId);
@@ -33,7 +33,7 @@ namespace IronFoundry.VcapClient.V2
         IEnumerable<Resource<Stack>> GetStacks();
         Resource<Stack> GetStack(Guid stackId);
 
-        Resource<Space> CreateSpace(SpaceManifest space);
+        Resource<Space> CreateSpace(string name, Guid organizationId);
         IEnumerable<Resource<Space>> GetSpaces();
         Resource<Space> GetSpace(Guid spaceId);
         void DeleteSpace(Guid spaceId);
@@ -43,7 +43,7 @@ namespace IronFoundry.VcapClient.V2
 
         IEnumerable<Resource<Organization>> GetOrganizations();
         Resource<Organization> GetOrganization(Guid organizationId);
-        Resource<Organization> CreateOrganization(OrganizationManifest organization);
+        Resource<Organization> CreateOrganization(string name);
         void DeleteOrganization(Guid organizationId);
 
         IEnumerable<Resource<Service>> GetServices();
@@ -61,11 +61,13 @@ namespace IronFoundry.VcapClient.V2
         IEnumerable<Resource<Domain>> GetDomainsBySpace(Guid spaceId);
         IEnumerable<Resource<Domain>> GetDomains();
         Resource<Domain> GetDomain(Guid domainId);
+        Resource<Domain> MapDomain(string name, Guid? organizationId, bool isWilcardExist = true);
+        void UnmapDomain(Guid domainId);
 
         IEnumerable<Resource<Event>> GetEvents();
         Resource<Event> GetEvent(Guid eventId);
 
-        Resource<Route> CreateRoute(RouteManifest route);
+        Resource<Route> CreateRoute(string host, Guid domainId, Guid spaceId);
         void DeleteRoute(Guid routeId);
         IEnumerable<Resource<Route>> GetRoutes();
         Resource<Route> GetRoute(Guid routeId);

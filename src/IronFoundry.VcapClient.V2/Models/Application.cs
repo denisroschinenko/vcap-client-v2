@@ -80,7 +80,7 @@ namespace IronFoundry.VcapClient.V2.Models
     {
         [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
-    
+
         [JsonProperty(PropertyName = "space_guid")]
         public Guid SpaceGuid { get; set; }
 

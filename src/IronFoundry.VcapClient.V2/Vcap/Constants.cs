@@ -14,6 +14,7 @@ namespace IronFoundry.VcapClient.V2
         public static readonly string Stack = "stacks";
         public static readonly string Space = "spaces";
         public static readonly string User = "users";
+        public static readonly string UserUaa = "Users";
         public static readonly string Organization = "organizations";
         public static readonly string Service = "services";
         public static readonly string ServiceInstance = "service_instances";
@@ -27,8 +28,13 @@ namespace IronFoundry.VcapClient.V2
         public static readonly string Bits = "bits";
         public static readonly string ResourceMatch = "resource_match";
         public static readonly string Download = "download";
-
+        public static readonly string Stats = "stats";
+        public static readonly string Instances = "instances";
+        public static readonly string Password = "password";
+        public static readonly string Score = "score";
+        public static readonly string Crash = "crashes";
 
         public static readonly string ParamName = "name";
+
     }
 }

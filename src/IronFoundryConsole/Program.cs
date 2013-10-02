@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Configuration;
 using IronFoundry.VcapClient.V2;
@@ -36,6 +37,10 @@ namespace IronFoundryConsole
             var client = new VcapClient(new Uri(url), new StableDataStorage());
             client.Login(login, password);
 
+            //var list = new List<Guid>() { Guid.Parse("dc2648b4-a6bd-4092-a491-afc5b4cb1781") };
+            //client.CreateUser("test8", new List<string> { "test8" }, "123456", "test8", "test8", list, list, list);
+
+
             //var name = "test";
             //var stackGuid = Guid.Parse("c9cf45fe-ee2e-4157-acdf-a5915b9bb15d");
             //var memory = 128;
@@ -51,29 +56,29 @@ namespace IronFoundryConsole
             //var stream = client.DownloadApplication(app.Metadata.ObjectId);
             //DownloadFile(stream);
 
-            //Console.WriteLine("--- Organizations: ---");
-            //foreach (var organization in client.GetOrganizations())
-            //{
-            //    Console.WriteLine(organization.Entity.Name);
-            //}
-            //Console.WriteLine();
+            Console.WriteLine("--- Organizations: ---");
+            foreach (var organization in client.GetOrganizations())
+            {
+                Console.WriteLine(organization.Entity.Name);
+            }
+            Console.WriteLine();
 
-            //Console.WriteLine("--- Spaces: ---");
-            //foreach (var space in client.GetSpaces())
-            //{
-            //    Console.WriteLine(space.Entity.Name);
-            //}
-            //Console.WriteLine();
+            Console.WriteLine("--- Spaces: ---");
+            foreach (var space in client.GetSpaces())
+            {
+                Console.WriteLine(space.Entity.Name);
+            }
+            Console.WriteLine();
 
-            //Console.WriteLine("--- Apps: ---");
-            //foreach (var app in client.GetApplications())
-            //{
-            //    Console.WriteLine(app.Entity.Name);
-            //}
-            //Console.WriteLine();
+            Console.WriteLine("--- Apps: ---");
+            foreach (var app in client.GetApplications())
+            {
+                Console.WriteLine(app.Entity.Name);
+            }
+            Console.WriteLine();
 
-            //Console.WriteLine("Everything is OK.");
-            //Console.ReadLine();
+            Console.WriteLine("Everything is OK.");
+            Console.ReadLine();
         }
 
 

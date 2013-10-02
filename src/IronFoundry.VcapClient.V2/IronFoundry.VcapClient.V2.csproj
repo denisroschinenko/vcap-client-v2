@@ -37,9 +37,12 @@
   <ItemGroup>
     <Compile Include="Models\AccessToken.cs" />
     <Compile Include="Models\Application.cs" />
+    <Compile Include="Models\ApplicationEvent.cs" />
+    <Compile Include="Models\Crashlog.cs" />
     <Compile Include="Models\Domain.cs" />
     <Compile Include="Models\Event.cs" />
     <Compile Include="Models\Info.cs" />
+    <Compile Include="Models\InstanceDetail.cs" />
     <Compile Include="Models\Metadata.cs" />
     <Compile Include="Models\Organization.cs" />
     <Compile Include="Models\Resource.cs" />
@@ -52,6 +55,9 @@
     <Compile Include="Models\ServicePlan.cs" />
     <Compile Include="Models\Space.cs" />
     <Compile Include="Models\Stack.cs" />
+    <Compile Include="Models\StatInfo.cs" />
+    <Compile Include="Models\Stats.cs" />
+    <Compile Include="Models\Usage.cs" />
     <Compile Include="Models\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Vcap\Constants.cs" />

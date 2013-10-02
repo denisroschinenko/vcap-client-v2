@@ -50,17 +50,7 @@ namespace IronFoundry.VcapClient.V2
 
         #endregion
 
-        #region Methods
-
-        private void InitializationCredentialManager(Uri targetUri)
-        {
-            _credentialManager = new VcapCredentialManager(targetUri, _stableDataStorage);
-
-            var info = GetInfo();
-
-            _credentialManager.SetLoginUri(info.AuthorizationUrl);
-
-        }
+        #region Implementation IVcapClient
 
         public void Target(string targetUrl)
         {
@@ -84,10 +74,31 @@ namespace IronFoundry.VcapClient.V2
         }
         public void Login(string email, string password)
         {
-            var provider = new UserProvider(_credentialManager, true);
+            var provider = new UserProvider(_credentialManager, true, false);
             provider.Login(email, password);
         }
-
+        public Resource<User> CreateUser(string username, IEnumerable<string> arrayEmails, string passwd, string firstName, string lastName,
+            IEnumerable<Guid> organizationGuids, IEnumerable<Guid> managedOrganizationGuids, IEnumerable<Guid> auditedOrganizationGuids)
+        {
+            var provider = new UserProvider(_credentialManager, true);
+            var userId = provider.Create(username, arrayEmails, passwd, firstName, lastName);
+            return CreateUser(organizationGuids, managedOrganizationGuids, auditedOrganizationGuids, userId);
+        }
+        public void ChangePassword(Guid userId, string newPassword, string oldPassword)
+        {
+            var provider = new UserProvider(_credentialManager, true);
+            provider.ChangePassword(userId, newPassword, oldPassword);
+        }
+        public IEnumerable<Resource<User>> GetUsers()
+        {
+            var provider = new UserProvider(_credentialManager);
+            return provider.GetAll();
+        }
+        public Resource<User> GetUser(Guid userId)
+        {
+            var provider = new UserProvider(_credentialManager);
+            return provider.GetById(userId);
+        }
 
         public IEnumerable<Resource<Application>> GetApplications()
         {
@@ -109,9 +120,8 @@ namespace IronFoundry.VcapClient.V2
             Resource<Route> resourceRoute = null;
             if (!string.IsNullOrWhiteSpace(domain) && !string.IsNullOrWhiteSpace(subDomain))
             {
-                var bindDomain = GetDomainsBySpace(spaceId).SingleOrDefault(x => x.Entity.Name.Equals(domain));
-                resourceRoute = GetRoutes().FirstOrDefault(x => x.Entity.Host.Equals(subDomain)) ??
-                                CreateRoute(subDomain, bindDomain.Metadata.ObjectId, spaceId);
+                var bindDomain = GetDomainByName(spaceId, domain);
+                resourceRoute = GetRouteByHostName(subDomain) ?? CreateRoute(subDomain, bindDomain.Metadata.ObjectId, spaceId);
             }
 
             var provider = new ApplicationProvider(_credentialManager, _stableDataStorage);
@@ -130,6 +140,12 @@ namespace IronFoundry.VcapClient.V2
         {
             var provider = new ApplicationProvider(_credentialManager);
             return provider.Update(resource);
+        }
+        public void UpdateApplicationBits(string projectPath, Guid applicationId)
+        {
+            var provider = new ApplicationProvider(_credentialManager);
+            provider.UploadApplication(projectPath, applicationId);
+            provider.RestartApplication(applicationId);
         }
         public void DeleteApplication(Guid applicationId)
         {
@@ -152,32 +168,43 @@ namespace IronFoundry.VcapClient.V2
             var provider = new ApplicationProvider(_credentialManager);
             provider.RestartApplication(applicationId);
         }
-        public void BindServiceToApplication(Guid serviceInstanceId, Guid applicationId)
-        {
-            var provider = new ServiceBindProvider(_credentialManager);
-            provider.BindService(serviceInstanceId, applicationId);
-
-        }
-        public void UnbindServiceFromApplication(Guid serviceBindId)
-        {
-            var provider = new ServiceBindProvider(_credentialManager);
-            provider.Delete(serviceBindId);
-
-        }
         public Stream DownloadApplication(Guid applicationId)
         {
             var provider = new ApplicationProvider(_credentialManager);
             return provider.Download(applicationId);
         }
-        public void BindRouteApplication(Guid applicationId, Guid routeId)
+        public IEnumerable<StatInfo> GetStats(Guid applicationId)
         {
             var provider = new ApplicationProvider(_credentialManager);
-            provider.BindRouteApplication(applicationId, routeId);
+            return provider.GetStats(applicationId);
         }
-        public void UnbindRouteApplication(Guid applicationId, Guid routeId)
+        public IEnumerable<InstanceDetail> GetInstances(Guid applicationId)
         {
             var provider = new ApplicationProvider(_credentialManager);
-            provider.UnbindRouteApplication(applicationId, routeId);
+            return provider.GetInstances(applicationId);
+        }
+        public IEnumerable<Resource<ApplicationEvent>> GetApplicationEvents(Application application)
+        {
+            var provider = new ApplicationProvider(_credentialManager);
+            return provider.GetEvents(application);
+        }
+
+        public string GetApplicationLogs(Guid applicationId)
+        {
+            var provider = new ApplicationProvider(_credentialManager);
+            provider.GetInstances(applicationId);
+
+            //TODO: Need to send request ~apps/guid/instances/guid/files/logs (strange mistake)
+
+            return string.Empty;
+        }
+
+        public IEnumerable<Crashlog> GetApplicationCrashlogs(Guid applicationId)
+        {
+            var provider = new ApplicationProvider(_credentialManager);
+            return provider.GetCrashlogs(applicationId);
+
+            //TODO: Need to send request ~apps/guid/instances/guid/files/logs (strange mistake)
         }
 
         public IEnumerable<Resource<Stack>> GetStacks()
@@ -197,6 +224,11 @@ namespace IronFoundry.VcapClient.V2
             var provider = new SpaceProvider(_credentialManager);
             return provider.Create(name, organizationId);
         }
+        public Resource<Space> UpdateSpace(Resource<Space> resource)
+        {
+            var provider = new SpaceProvider(_credentialManager);
+            return provider.Update(resource);
+        }
         public IEnumerable<Resource<Space>> GetSpaces()
         {
             var provider = new SpaceProvider(_credentialManager);
@@ -213,18 +245,6 @@ namespace IronFoundry.VcapClient.V2
             provider.Delete(spaceId);
         }
 
-        public IEnumerable<Resource<User>> GetUsers()
-        {
-            var provider = new UserProvider(_credentialManager);
-            return provider.GetAll();
-        }
-        public Resource<User> GetUser(Guid userId)
-        {
-            var provider = new UserProvider(_credentialManager);
-            return provider.GetById(userId);
-        }
-
-
         public IEnumerable<Resource<Organization>> GetOrganizations()
         {
             var provider = new OrganizationProvider(_credentialManager);
@@ -239,6 +259,11 @@ namespace IronFoundry.VcapClient.V2
         {
             var provider = new OrganizationProvider(_credentialManager);
             return provider.Create(name);
+        }
+        public Resource<Organization> UpdateOrganization(Resource<Organization> resource)
+        {
+            var provider = new OrganizationProvider(_credentialManager);
+            return provider.Update(resource);
         }
         public void DeleteOrganization(Guid organizationId)
         {
@@ -269,6 +294,21 @@ namespace IronFoundry.VcapClient.V2
             var provider = new ServiceInstanceProvider(_credentialManager);
             return provider.GetById(serviceInstanceId);
         }
+        public Resource<ServiceInstance> CreateServiceInstance(string name, Guid servicePlanId, Guid spaceId)
+        {
+            var provider = new ServiceInstanceProvider(_credentialManager);
+            return provider.Create(name, servicePlanId, spaceId);
+        }
+        public Resource<ServiceInstance> UpdateServiceInstance(Resource<ServiceInstance> resource)
+        {
+            var provider = new ServiceInstanceProvider(_credentialManager);
+            return provider.Update(resource);
+        }
+        public void DeleteServiceInstance(Guid serviceInstanceId)
+        {
+            var provider = new ServiceInstanceProvider(_credentialManager);
+            provider.Delete(serviceInstanceId);
+        }
 
 
         public IEnumerable<Resource<ServiceBind>> GetServiceBindings()
@@ -281,7 +321,16 @@ namespace IronFoundry.VcapClient.V2
             var provider = new ServiceBindProvider(_credentialManager);
             return provider.GetById(serviceBindingId);
         }
-
+        public void BindServiceToApplication(Guid serviceInstanceId, Guid applicationId)
+        {
+            var provider = new ServiceBindProvider(_credentialManager);
+            provider.BindService(serviceInstanceId, applicationId);
+        }
+        public void UnbindServiceFromApplication(Guid serviceBindId)
+        {
+            var provider = new ServiceBindProvider(_credentialManager);
+            provider.Delete(serviceBindId);
+        }
 
         public IEnumerable<Resource<ServicePlan>> GetServicePlans()
         {
@@ -310,6 +359,12 @@ namespace IronFoundry.VcapClient.V2
             var provider = new DomainProvider(_credentialManager);
             return provider.GetById(domainId);
         }
+
+        public Resource<Domain> GetDomainByName(Guid spaceId, string name)
+        {
+            return GetDomainsBySpace(spaceId).SingleOrDefault(x => x.Entity.Name.Equals(name));
+        }
+
         public Resource<Domain> MapDomain(string name, Guid? organizationId, bool isWilcardExist = true)
         {
             var provider = new DomainProvider(_credentialManager);
@@ -355,12 +410,49 @@ namespace IronFoundry.VcapClient.V2
             return provider.GetById(routeId);
         }
 
+        public Resource<Route> GetRouteByHostName(string name)
+        {
+            return GetRoutes().FirstOrDefault(x => x.Entity.Host.Equals(name));
+        }
+        public void BindRouteApplication(Guid applicationId, Guid routeId)
+        {
+            var provider = new ApplicationProvider(_credentialManager);
+            provider.BindRouteApplication(applicationId, routeId);
+        }
+        public void UnbindRouteApplication(Guid applicationId, Guid routeId)
+        {
+            var provider = new ApplicationProvider(_credentialManager);
+            provider.UnbindRouteApplication(applicationId, routeId);
+        }
+
         public Info GetInfo()
         {
             var provider = new InfoProvider(_credentialManager);
             return provider.GetInfo();
         }
 
+
+        #endregion
+
+        #region Private methods
+
+        private void InitializationCredentialManager(Uri targetUri)
+        {
+            _credentialManager = new VcapCredentialManager(targetUri, _stableDataStorage);
+
+            var info = GetInfo();
+
+            _credentialManager.SetLoginUri(info.AuthorizationUrl);
+
+        }
+
+        private Resource<User> CreateUser(IEnumerable<Guid> organizationGuids, IEnumerable<Guid> managedOrganizationGuids,
+                                IEnumerable<Guid> auditedOrganizationGuids, Guid userId)
+        {
+            var provider = new UserProvider(_credentialManager);
+            provider.Create(userId);
+            return provider.Update(organizationGuids, managedOrganizationGuids, auditedOrganizationGuids, userId);
+        }
         #endregion
     }
 }

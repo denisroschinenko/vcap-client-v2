@@ -13,19 +13,18 @@ namespace IronFoundry.VcapClient.V2
         protected readonly VcapCredentialManager CredentialManager;
         protected readonly VcapRequest VcapRequest;
         private readonly string _queryParameter = "q=";
-        private readonly string _inlineRelation = "inline-relations-depth=";
 
         protected abstract string EntityName { get; }
 
 
-        protected BaseProvider(VcapCredentialManager credentialManager, bool isLogin)
+        protected BaseProvider(VcapCredentialManager credentialManager, bool isLogin, bool isAuthentication)
         {
             CredentialManager = credentialManager;
-            VcapRequest = new VcapRequest(CredentialManager, isLogin);
+            VcapRequest = new VcapRequest(CredentialManager, isLogin, isAuthentication);
         }
 
         protected BaseProvider(VcapCredentialManager credentialManager)
-            : this(credentialManager, false) { }
+            : this(credentialManager, false, true) { }
 
         public virtual IEnumerable<Resource<T>> GetAll()
         {
@@ -72,21 +71,9 @@ namespace IronFoundry.VcapClient.V2
             return string.Format("v2/{0}", !string.IsNullOrWhiteSpace(entityName) ? entityName : EntityName);
         }
         #region Auxillary methods
-
-        private string BuildArgs()
-        {
-            return null;
-        }
-
         private string BuildFilteringArgs(KeyValuePair<string, object> param)
         {
-            string args = string.Format("{0}?{1}{2}:{3}", GetEntityNameV2(), _queryParameter, param.Key, param.Value);
-            return args;
-        }
-
-        private string BuildRelationshipsArgs(int depth)
-        {
-            return string.Format("{0}{1}", _inlineRelation, depth);
+            return string.Format("{0}?{1}{2}:{3}", GetEntityNameV2(), _queryParameter, param.Key, param.Value);
         }
         #endregion
     }

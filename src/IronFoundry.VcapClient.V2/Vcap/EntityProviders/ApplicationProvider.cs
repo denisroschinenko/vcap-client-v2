@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using IronFoundry.VcapClient.V2.Models;
@@ -65,14 +66,24 @@ namespace IronFoundry.VcapClient.V2
 
             var resource = Create(name, stackId, spaceId, memory, numerInstance);
 
+            UploadApplication(projectPath, resource.Metadata.ObjectId);
+
+            resource = StartApplication(resource.Metadata.ObjectId);
+            return resource;
+        }
+
+        public void UploadApplication(string projectPath, Guid applicationId)
+        {
+            if (string.IsNullOrWhiteSpace(projectPath))
+            {
+                throw new ArgumentNullException("projectPath path must be entered");
+            }
+
             var tempDirectoryPath = StableDataStorage.CopyProjectToTempDirectory(projectPath);
             var resources = StableDataStorage.FilteringResources(tempDirectoryPath, CheckResources);
             byte[] fileBytes = StableDataStorage.CreateZipFile(tempDirectoryPath);
 
-            UploadApplicationBits(resource, fileBytes, resources);
-
-            resource = StartApplication(resource.Metadata.ObjectId);
-            return resource;
+            UploadBits(applicationId, fileBytes, resources);
         }
 
         private ResourceFile[] CheckResources(ResourceFile[] resourcesArray)
@@ -82,10 +93,10 @@ namespace IronFoundry.VcapClient.V2
             return VcapRequest.Execute<ResourceFile[]>();
         }
 
-        private void UploadApplicationBits(Resource<Application> application, byte[] fileBytes, ResourceFile[] resourcesArray)
+        private void UploadBits(Guid applicationId, byte[] fileBytes, ResourceFile[] resourcesArray)
         {
-            VcapRequest.BuildRequest(HttpMethod.Put, ContentTypes.MultipartFormData, GetEntityNameV2(), application.Metadata.ObjectId, Constants.Bits);
-            VcapRequest.AddFile("application", fileBytes, application.Metadata.ObjectId.ToString());
+            VcapRequest.BuildRequest(HttpMethod.Put, ContentTypes.MultipartFormData, GetEntityNameV2(), applicationId, Constants.Bits);
+            VcapRequest.AddFile("application", fileBytes, applicationId.ToString());
             VcapRequest.AddBodyParameter("resources", resourcesArray);
             VcapRequest.Execute();
         }
@@ -120,6 +131,39 @@ namespace IronFoundry.VcapClient.V2
                 };
 
             return Create(applicationManifest);
+        }
+
+        public IEnumerable<StatInfo> GetStats(Guid applicationId)
+        {
+            VcapRequest.BuildRequest(HttpMethod.Get, ContentTypes.Json, GetEntityNameV2(), applicationId, Constants.Stats);
+            var statInfos = VcapRequest.Execute<Dictionary<int, StatInfo>>();
+            var result = new List<StatInfo>();
+            foreach (KeyValuePair<int, StatInfo> statInfo in statInfos)
+            {
+                StatInfo si = statInfo.Value;
+                si.StatInfoId = statInfo.Key;
+                result.Add(si);
+            }
+            return result;
+        }
+
+        public IEnumerable<InstanceDetail> GetInstances(Guid applicationId)
+        {
+            VcapRequest.BuildRequest(HttpMethod.Get, ContentTypes.Json, GetEntityNameV2(), applicationId, Constants.Instances);
+            var instanceDetails = VcapRequest.Execute<Dictionary<int, InstanceDetail>>();
+            return instanceDetails.Values;
+        }
+
+        public IEnumerable<Crashlog> GetCrashlogs(Guid applicationId)
+        {
+            VcapRequest.BuildRequest(HttpMethod.Get, ContentTypes.Json, GetEntityNameV2(), applicationId, Constants.Crash);
+            return VcapRequest.Execute<IEnumerable<Crashlog>>();
+        }
+
+        public IEnumerable<Resource<ApplicationEvent>> GetEvents(Application application)
+        {
+            VcapRequest.BuildRequest(HttpMethod.Get, ContentTypes.Json, application.EventsUrl);
+            return VcapRequest.Execute<ResponseData<ApplicationEvent>>().Resources;
         }
     }
 }

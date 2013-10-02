@@ -13,10 +13,10 @@ namespace IronFoundry.VcapClient.V2
         private readonly RestClient _client;
         private RestRequest _request;
 
-        public VcapRequest(VcapCredentialManager credentialManager, bool isLogin = false)
+        public VcapRequest(VcapCredentialManager credentialManager, bool isLogin, bool isAuthentication)
         {
             _credentialManager = credentialManager;
-            _client = BuildClient(isLogin);
+            _client = BuildClient(isLogin, isAuthentication);
         }
 
         public void BuildRequest(HttpMethod method, ContentTypes format, params object[] args)
@@ -25,9 +25,15 @@ namespace IronFoundry.VcapClient.V2
             ProcessRequestArgs(_request, args);
         }
 
-        public TResponse Execute<TResponse>() where TResponse : class
+        public TResponse Execute<TResponse>()
         {
             var tasks = _client.ExecuteAsync<TResponse>(_request);
+            return tasks.Result;
+        }
+
+        public TResponse ExecuteAnonymousType<TResponse>(TResponse anonymousObject)
+        {
+            var tasks = _client.ExecuteAsyncAnonymousType(_request, anonymousObject);
             return tasks.Result;
         }
 
@@ -63,7 +69,7 @@ namespace IronFoundry.VcapClient.V2
             return rv;
         }
 
-        private RestClient BuildClient(bool isLogin)
+        private RestClient BuildClient(bool isLogin, bool isAuthentication)
         {
             Uri currentTargetUri = isLogin ? _credentialManager.LoginTarget : _credentialManager.CurrentTarget;
 
@@ -74,13 +80,12 @@ namespace IronFoundry.VcapClient.V2
                 BaseUrl = baseUrl,
             };
 
-            if (!isLogin && _credentialManager.HasToken)
+            if (isAuthentication && _credentialManager.HasToken)
             {
                 rv.AddHeader("AUTHORIZATION", string.Format("{0} {1}", _credentialManager.CurrentToken.TokenType,
                     _credentialManager.CurrentToken.Token));
             }
-
-            if (isLogin)
+            else if (isLogin)
             {
                 byte[] encodedBytes = Encoding.UTF8.GetBytes(Constants.DefaultLogin);
                 var defaultLogin = string.Format("Basic {0}", Convert.ToBase64String(encodedBytes));

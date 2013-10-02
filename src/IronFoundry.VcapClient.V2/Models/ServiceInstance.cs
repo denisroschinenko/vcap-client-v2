@@ -58,4 +58,16 @@ namespace IronFoundry.VcapClient.V2.Models
 
         #endregion
     }
+
+    internal class ServiceInstanceManifest
+    {
+        [JsonProperty(PropertyName = "name")]
+        public string Name { get; set; }
+
+        [JsonProperty(PropertyName = "service_plan_guid")]
+        public Guid ServicePlanId { get; set; }
+
+        [JsonProperty(PropertyName = "space_guid")]
+        public Guid SpaceId { get; set; }
+    }
 }

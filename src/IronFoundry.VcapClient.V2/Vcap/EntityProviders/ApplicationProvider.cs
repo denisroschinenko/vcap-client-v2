@@ -165,5 +165,11 @@ namespace IronFoundry.VcapClient.V2
             VcapRequest.BuildRequest(HttpMethod.Get, ContentTypes.Json, application.EventsUrl);
             return VcapRequest.Execute<ResponseData<ApplicationEvent>>().Resources;
         }
+
+        public IEnumerable<Resource<Application>> GetApplicationsBySpace(Space space)
+        {
+            VcapRequest.BuildRequest(HttpMethod.Get, ContentTypes.Json, space.AppsUrl);
+            return VcapRequest.Execute<ResponseData<Application>>().Resources;
+        }
     }
 }

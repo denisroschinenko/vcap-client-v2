@@ -19,6 +19,7 @@ namespace IronFoundry.VcapClient.V2
         IEnumerable<Resource<User>> GetUsers();
         Resource<User> GetUser(Guid userId);
 
+        IEnumerable<Resource<Application>> GetApplicationsBySpace(Space space);
         IEnumerable<Resource<Application>> GetApplications();
         Resource<Application> GetApplication(Guid applicationId);
         Resource<Application> GetApplication(string applicationName);
@@ -43,6 +44,7 @@ namespace IronFoundry.VcapClient.V2
         Resource<Space> CreateSpace(string name, Guid organizationId);
         Resource<Space> UpdateSpace(Resource<Space> resource);
         IEnumerable<Resource<Space>> GetSpaces();
+        IEnumerable<Resource<Space>> GetSpacesByOrganization(Organization organization);
         Resource<Space> GetSpace(Guid spaceId);
         void DeleteSpace(Guid spaceId);
 

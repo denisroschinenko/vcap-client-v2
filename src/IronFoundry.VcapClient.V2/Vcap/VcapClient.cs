@@ -100,6 +100,11 @@ namespace IronFoundry.VcapClient.V2
             return provider.GetById(userId);
         }
 
+        public IEnumerable<Resource<Application>> GetApplicationsBySpace(Space space)
+        {
+            var provider = new ApplicationProvider(_credentialManager);
+            return provider.GetApplicationsBySpace(space);
+        }
         public IEnumerable<Resource<Application>> GetApplications()
         {
             var provider = new ApplicationProvider(_credentialManager);
@@ -233,6 +238,11 @@ namespace IronFoundry.VcapClient.V2
         {
             var provider = new SpaceProvider(_credentialManager);
             return provider.GetAll();
+        }
+        public IEnumerable<Resource<Space>> GetSpacesByOrganization(Organization organization)
+        {
+            var provider = new SpaceProvider(_credentialManager);
+            return provider.GetSpacesByOrganization(organization);
         }
         public Resource<Space> GetSpace(Guid spaceId)
         {

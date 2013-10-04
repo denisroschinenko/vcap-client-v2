@@ -21,6 +21,12 @@ namespace IronFoundry.VcapClient.V2
             {
                 throw new ArgumentNullException("Host must be entered");
             }
+
+            if (EntityExists(host))
+            {
+                throw new VcapException();
+            }
+
             var routeManifest = new RouteManifest
             {
                 DomainId = domainId,

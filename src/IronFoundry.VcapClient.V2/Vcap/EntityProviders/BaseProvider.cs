@@ -70,6 +70,13 @@ namespace IronFoundry.VcapClient.V2
         {
             return string.Format("v2/{0}", !string.IsNullOrWhiteSpace(entityName) ? entityName : EntityName);
         }
+
+        protected bool EntityExists(string name)
+        {
+            var resource = GetByParam(Constants.ParamName, name);
+            return resource != null;
+        }
+
         #region Auxillary methods
         private string BuildFilteringArgs(KeyValuePair<string, object> param)
         {

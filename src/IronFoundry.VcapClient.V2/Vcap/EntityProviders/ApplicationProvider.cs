@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using IronFoundry.VcapClient.V2.Models;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using PortableRest;
 
 
@@ -121,6 +123,11 @@ namespace IronFoundry.VcapClient.V2
 
         public Resource<Application> Create(string name, Guid stackId, Guid spaceId, long memory, int numerInstance)
         {
+            if (EntityExists(name))
+            {
+                throw new VcapException();
+            }
+
             var applicationManifest = new ApplicationManifest
                 {
                     Name = name,
@@ -170,6 +177,38 @@ namespace IronFoundry.VcapClient.V2
         {
             VcapRequest.BuildRequest(HttpMethod.Get, ContentTypes.Json, space.AppsUrl);
             return VcapRequest.Execute<ResponseData<Application>>().Resources;
+        }
+
+        public Resource<Application> SetApplicationEnvironmentVariables(Guid applicationId, KeyValuePair<string, string> variable)
+        {
+            var resource = GetById(applicationId);
+            JToken token;
+            if (resource.Entity.EnvironmentInfo.TryGetValue(variable.Key, out token))
+            {
+                throw new VcapException("");
+            }
+            resource.Entity.EnvironmentInfo.Add(variable.Key, variable.Value);
+            return Update(resource);
+        }
+
+        public Resource<Application> UnsetApplicationEnvironmentVariables(Guid applicationId, string keyVariable)
+        {
+            var resource = GetById(applicationId);
+            JToken token;
+            if (!resource.Entity.EnvironmentInfo.TryGetValue(keyVariable, out token))
+            {
+                throw new VcapException("");
+            }
+            resource.Entity.EnvironmentInfo.Remove(keyVariable);
+            return Update(resource);
+        }
+
+
+        public string GetApplicationEnvironmentVariables(Guid applicationId)
+        {
+            var resource = GetById(applicationId);
+
+            return resource.Entity.EnvironmentInfo.ToString().Replace(Environment.NewLine, string.Empty);
         }
     }
 }

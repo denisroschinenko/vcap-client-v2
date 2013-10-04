@@ -37,25 +37,7 @@ namespace IronFoundryConsole
             var client = new VcapClient(new Uri(url), new StableDataStorage());
             client.Login(login, password);
 
-            //var list = new List<Guid>() { Guid.Parse("dc2648b4-a6bd-4092-a491-afc5b4cb1781") };
-            //client.CreateUser("test8", new List<string> { "test8" }, "123456", "test8", "test8", list, list, list);
-
-
-            //var name = "test";
-            //var stackGuid = Guid.Parse("c9cf45fe-ee2e-4157-acdf-a5915b9bb15d");
-            //var memory = 128;
-            //var numberInstance = 1;
-            //var spaceGuid = Guid.Parse("93fad9b7-db0b-4c4d-8ffe-d456d91af608");
-            //var path = @"d:\MvcAltorosApplication\MvcAltorosApplication";
-            //client.PushApplication(name, stackGuid, spaceGuid, memory, numberInstance, path, "test", "vcap.me");
-
-            //Console.WriteLine("Start downloading");
-            //Console.ReadLine();
-
-            //var app = client.GetApplication("test");
-            //var stream = client.DownloadApplication(app.Metadata.ObjectId);
-            //DownloadFile(stream);
-
+            
             Console.WriteLine("--- Organizations: ---");
             foreach (var organization in client.GetOrganizations())
             {

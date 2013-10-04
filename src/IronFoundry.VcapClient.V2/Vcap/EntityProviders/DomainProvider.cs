@@ -31,6 +31,11 @@ namespace IronFoundry.VcapClient.V2
                 throw new ArgumentNullException("Name must be entered");
             }
 
+            if (EntityExists(name))
+            {
+                throw new VcapException();
+            }
+
             var domainManifest = new DomainManifest
                 {
                     Name = name,

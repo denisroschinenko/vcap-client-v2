@@ -37,6 +37,9 @@ namespace IronFoundry.VcapClient.V2
         IEnumerable<Resource<ApplicationEvent>> GetApplicationEvents(Application application);
         string GetApplicationLogs(Guid applicationId);
         IEnumerable<Crashlog> GetApplicationCrashlogs(Guid applicationId);
+        string GetApplicationEnvironmentVariables(Guid applicationId);
+        Resource<Application> SetApplicationEnvironmentVariables(Guid applicationId, KeyValuePair<string, string> variable);
+        Resource<Application> UnsetApplicationEnvironmentVariables(Guid applicationId, string keyVariable);
 
         IEnumerable<Resource<Stack>> GetStacks();
         Resource<Stack> GetStack(Guid stackId);

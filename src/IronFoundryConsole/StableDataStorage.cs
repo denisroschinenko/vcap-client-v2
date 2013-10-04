@@ -10,6 +10,9 @@ using Microsoft.VisualBasic.Devices;
 
 namespace IronFoundryConsole
 {
+    /// <summary>
+    /// This class is an example how to work with storage
+    /// </summary>
     internal class StableDataStorage : IStableDataStorage
     {
         private const string TokenFile = ".v2_token";

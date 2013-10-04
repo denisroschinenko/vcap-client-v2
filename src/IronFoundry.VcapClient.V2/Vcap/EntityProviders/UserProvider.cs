@@ -81,6 +81,7 @@ namespace IronFoundry.VcapClient.V2
 
             var score = new { score = 0, requiredScore = 0 };
             var responceInfo = VcapRequest.ExecuteAnonymousType(score);
+            //TODO: need additional info how to handle previous responce
 
             ScorePassword(userId, newPassword, oldPassword);
         }

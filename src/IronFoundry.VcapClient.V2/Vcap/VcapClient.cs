@@ -211,6 +211,21 @@ namespace IronFoundry.VcapClient.V2
 
             //TODO: Need to send request ~apps/guid/instances/guid/files/logs (strange mistake)
         }
+        public string GetApplicationEnvironmentVariables(Guid applicationId)
+        {
+            var provider = new ApplicationProvider(_credentialManager);
+            return provider.GetApplicationEnvironmentVariables(applicationId);
+        }
+        public Resource<Application> SetApplicationEnvironmentVariables(Guid applicationId, KeyValuePair<string, string> variable)
+        {
+            var provider = new ApplicationProvider(_credentialManager);
+            return provider.SetApplicationEnvironmentVariables(applicationId, variable);
+        }
+        public Resource<Application> UnsetApplicationEnvironmentVariables(Guid applicationId, string keyVariable)
+        {
+            var provider = new ApplicationProvider(_credentialManager);
+            return provider.UnsetApplicationEnvironmentVariables(applicationId, keyVariable);
+        }
 
         public IEnumerable<Resource<Stack>> GetStacks()
         {

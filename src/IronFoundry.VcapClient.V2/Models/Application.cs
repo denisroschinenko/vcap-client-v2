@@ -1,5 +1,6 @@
 ﻿using System;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace IronFoundry.VcapClient.V2.Models
 {
@@ -31,7 +32,7 @@ namespace IronFoundry.VcapClient.V2.Models
         public string DetectedBuildpack { get; set; }
 
         [JsonProperty(PropertyName = "environment_json")]
-        public object EnvironmentInfo { get; set; }
+        public JObject EnvironmentInfo { get; set; }
 
         [JsonProperty(PropertyName = "memory")]
         public long Memory { get; set; }

@@ -22,6 +22,10 @@ namespace IronFoundry.VcapClient.V2
                 throw new ArgumentNullException("Name must be entered");
             }
 
+            if (EntityExists(name))
+            {
+                throw new VcapException();
+            }
             var serviceInstanceManifest = new ServiceInstanceManifest()
                 {
                     Name = name,
